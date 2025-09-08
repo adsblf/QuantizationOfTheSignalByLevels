@@ -1,5 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 
 public class ProgramInterface {
     private final String[] functions = {
@@ -8,9 +12,13 @@ public class ProgramInterface {
             "Функция 3"
     };
 
-    private final JTextField textFieldX = new JTextField(20);
-    private final JTextField textFieldY = new JTextField(20);
-    private final JTextField textFieldN = new JTextField(20);
+    private final Map<String, List<String>> functionsWithLabels = Map.of(
+            "Функция 1", List.of("Введите x: ", "Введите y: "),
+            "Функция 2", List.of("Введите z: ", "Введите s: "),
+            "Функция 3", List.of("Введите x: ")
+    );
+
+    private final Map<String, List<JTextField>> functionFields = new HashMap<>();
 
     public void createWindow() {
         JFrame frame = new JFrame("Построить функцию с квантованием сигнала");
@@ -24,25 +32,13 @@ public class ProgramInterface {
         CardLayout layout = new CardLayout();
         JPanel panel = new JPanel(layout);
 
-        JPanel panel1 = new JPanel();
-        panel1.add(new JLabel("Введите x:"));
-        panel1.add(textFieldX);
-
-        JPanel panel2 = new JPanel();
-        panel2.add(new JLabel("Введите x:"));
-        panel2.add(textFieldY);
-
-        JPanel panel3 = new JPanel();
-        panel3.add(new JLabel("Введите x:"));
-        panel3.add(textFieldN);
-
-        panel.add(panel1, "Функция 1");
-        panel.add(panel2, "Функция 2");
-        panel.add(panel3, "Функция 3");
+        functionsWithLabels.forEach((functionName, fields) -> {
+            panel.add(createFunctionPanel(functionName, fields), functionName);
+        });
 
         frame.add(panel, BorderLayout.WEST);
 
-        comboBox.addActionListener(action -> {
+        comboBox.addActionListener(_ -> {
             String selected = (String) comboBox.getSelectedItem();
             layout.show(panel, selected);
         });
@@ -53,7 +49,7 @@ public class ProgramInterface {
         plotTheFunctionGraph.setPreferredSize(new Dimension(400, 50));
         frame.add(plotTheFunctionGraph, BorderLayout.SOUTH);
 
-        plotTheFunctionGraph.addActionListener(action -> {
+        plotTheFunctionGraph.addActionListener(_ -> {
             String selected = (String) comboBox.getSelectedItem();
 
             switch(selected) {
@@ -70,6 +66,25 @@ public class ProgramInterface {
         });
 
         frame.setVisible(true);
+    }
+
+    private JPanel createFunctionPanel(String functionName, List<String> labels) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        List <JTextField> fields = new ArrayList<>();
+
+        labels.forEach(label -> {
+            JTextField field = new JTextField(20);
+            field.setMaximumSize(field.getPreferredSize()); // Ёбанный костыль
+
+            panel.add(new JLabel(label));
+            panel.add(field);
+
+            fields.add(field);
+        });
+
+        this.functionFields.put(functionName, fields);
+        return panel;
     }
 
     private void dummyFunction1() {
