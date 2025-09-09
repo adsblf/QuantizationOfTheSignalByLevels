@@ -1,3 +1,5 @@
+package main.java.ru.berezhnov;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -7,7 +9,7 @@ import java.util.List;
 
 public class ProgramInterface {
     private final String[] functions = {
-            "Функция 1",
+            "sinx",
             "Функция 2",
             "Функция 3"
     };
@@ -19,7 +21,7 @@ public class ProgramInterface {
     );
 
     private final Map<String, List<String>> functionsWithLabels = Map.of(
-            "Функция 1", List.of("Введите x: ", "Введите y: "),
+            "sinx", List.of("Введите x: ", "Введите y: "),
             "Функция 2", List.of("Введите z: ", "Введите s: "),
             "Функция 3", List.of("Введите x: ")
     );
@@ -70,7 +72,7 @@ public class ProgramInterface {
             String selected = (String) comboBox.getSelectedItem();
 
             switch (selected) {
-                case "Функция 1":
+                case "sinx":
                     dummyFunction1();
                     break;
                 case "Функция 2":
@@ -195,7 +197,7 @@ public class ProgramInterface {
     }
 
     private void dummyFunction1() {
-        printFunctionData("Функция 1");
+        printFunctionData("sinx");
     }
 
     private void dummyFunction2() {
