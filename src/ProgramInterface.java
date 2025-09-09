@@ -12,21 +12,32 @@ public class ProgramInterface {
             "Функция 3"
     };
 
+    private final List<String> quantizationTypes = List.of(
+            "По верху",
+            "По низу",
+            "По среднему"
+    );
+
     private final Map<String, List<String>> functionsWithLabels = Map.of(
             "Функция 1", List.of("Введите x: ", "Введите y: "),
             "Функция 2", List.of("Введите z: ", "Введите s: "),
             "Функция 3", List.of("Введите x: ")
     );
 
+    /**
+     * Параметры для построения графика:
+     * functionFields - словарь, содержащий: "Название функции" : "Список ее параметров"
+     * quantizationGroup - тип построения графика ("По верху", "По низу", "По центру")
+     * quantLevelsField - уровень квантования
+     */
     private final Map<String, List<JTextField>> functionFields = new HashMap<>();
+    private ButtonGroup quantizationGroup;
+    private JTextField quantLevelsField;
 
     public void createWindow() {
-        JFrame frame = new JFrame("Построить функцию с квантованием сигнала");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 400);
-        frame.setLayout(new BorderLayout());
+        JFrame frame = createFrame("Построить функцию с квантованием сигнала");
 
-        JComboBox<String> comboBox = new JComboBox<>(functions);
+        JComboBox<String> comboBox = createComboBoxForSelectFunction(functions);
         frame.add(comboBox, BorderLayout.NORTH);
 
         CardLayout layout = new CardLayout();
@@ -43,16 +54,22 @@ public class ProgramInterface {
             layout.show(panel, selected);
         });
 
-        JButton plotTheFunctionGraph = new JButton("Построить график функции");
-        plotTheFunctionGraph.setBackground(Color.PINK);
-        plotTheFunctionGraph.setFont(new Font("Arial", Font.BOLD, 12));
-        plotTheFunctionGraph.setPreferredSize(new Dimension(400, 50));
-        frame.add(plotTheFunctionGraph, BorderLayout.SOUTH);
+        frame.add(createPanelToSelectTheTypeOfQuantization(this.quantizationTypes), BorderLayout.CENTER);
 
+        // Нижняя панель с кнопкой и полем для ввода уровней квантования
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+        JPanel quantPanel = createPanelForEnteringQuantizationLevels();
+        JButton plotTheFunctionGraph = createButtonForBuildingFunction("Построить график функции");
+        bottomPanel.add(quantPanel);
+        bottomPanel.add(plotTheFunctionGraph);
+        frame.add(bottomPanel, BorderLayout.SOUTH);
+
+        // Действие при нажатии на кнопку "Построить график функции"
         plotTheFunctionGraph.addActionListener(_ -> {
             String selected = (String) comboBox.getSelectedItem();
 
-            switch(selected) {
+            switch (selected) {
                 case "Функция 1":
                     dummyFunction1();
                     break;
@@ -68,10 +85,70 @@ public class ProgramInterface {
         frame.setVisible(true);
     }
 
+    /**
+     * Создает новое окно для программы с переданным названием
+     *
+     * @param frameName
+     * @return JFrame
+     */
+    private JFrame createFrame(String frameName) {
+        return new JFrame(frameName) {{
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            setSize(500, 400);
+            setLayout(new BorderLayout());
+        }};
+    }
+
+    /**
+     * Создает выпадающий список для выбора нужной функции
+     *
+     * @param functions
+     * @return JComboBox<>
+     */
+    private JComboBox<String> createComboBoxForSelectFunction(String[] functions) {
+        return new JComboBox<>(functions);
+    }
+
+    /**
+     * Создает кнопку для построения графика функции
+     *
+     * @param functionName
+     * @return JButton
+     */
+    private JButton createButtonForBuildingFunction(String functionName) {
+        return new JButton(functionName) {{
+            setBackground(Color.PINK);
+            setFont(new Font("Arial", Font.BOLD, 12));
+            setAlignmentX(Component.CENTER_ALIGNMENT);
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        }};
+    }
+
+
+    /**
+     * Создает панель для ввода уровней квантования
+     *
+     * @return JPanel
+     */
+    private JPanel createPanelForEnteringQuantizationLevels() {
+        return new JPanel(new FlowLayout(FlowLayout.LEFT)) {{
+            add(new JLabel("Установить количество уровней квантования:"));
+            quantLevelsField = new JTextField("5", 10); // значение по умолчанию = 5
+            add(quantLevelsField);
+        }};
+    }
+
+    /**
+     * Создает панель для отдельной функции с необходимыми полями для ввода
+     *
+     * @param functionName
+     * @param labels
+     * @return JPanel panel
+     */
     private JPanel createFunctionPanel(String functionName, List<String> labels) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        List <JTextField> fields = new ArrayList<>();
+        List<JTextField> fields = new ArrayList<>();
 
         labels.forEach(label -> {
             JTextField field = new JTextField(20);
@@ -87,15 +164,60 @@ public class ProgramInterface {
         return panel;
     }
 
+    /**
+     * Создает список для выбора типа построения графика из переданного списка строк
+     *
+     * @param quantizationTypes
+     * @return JPanel radioPanel
+     */
+    private JPanel createPanelToSelectTheTypeOfQuantization(List<String> quantizationTypes) {
+        if (quantizationTypes.isEmpty()) {
+            return new JPanel();
+        }
+
+        List<JRadioButton> radioButtons = new ArrayList<>();
+        this.quantizationGroup = new ButtonGroup();
+
+        quantizationTypes.forEach(quantizationType -> {
+            JRadioButton jRadioButton = new JRadioButton(quantizationType);
+            jRadioButton.setActionCommand(quantizationType);
+            radioButtons.add(jRadioButton);
+            this.quantizationGroup.add(jRadioButton);
+        });
+
+        radioButtons.getFirst().setSelected(true);
+
+        JPanel radioPanel = new JPanel();
+        radioPanel.setLayout(new BoxLayout(radioPanel, BoxLayout.Y_AXIS));
+        radioButtons.forEach(radioPanel::add);
+
+        return radioPanel;
+    }
+
     private void dummyFunction1() {
-        System.out.println("Вызвана функция 1");
+        printFunctionData("Функция 1");
     }
 
     private void dummyFunction2() {
-        System.out.println("Вызвана функция 2");
+        printFunctionData("Функция 2");
     }
 
     private void dummyFunction3() {
-        System.out.println("Вызвана функция 3");
+        printFunctionData("Функция 3");
     }
+
+    private void printFunctionData(String functionName) {
+        List<JTextField> fields = functionFields.get(functionName);
+        System.out.println("Параметры " + functionName + ":");
+        for (int i = 0; i < fields.size(); i++) {
+            System.out.println("  Поле " + (i + 1) + ": " + fields.get(i).getText());
+        }
+
+        String selectedQuant = quantizationGroup.getSelection().getActionCommand();
+        System.out.println("Выбранный тип квантования: " + selectedQuant);
+
+        String levels = quantLevelsField.getText();
+        System.out.println("Количество уровней квантования: " + levels);
+    }
+
 }
