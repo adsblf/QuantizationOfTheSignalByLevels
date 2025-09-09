@@ -1,4 +1,4 @@
-package main.java.ru.berezhnov;
+package ru.berezhnov;
 
 public class Main {
     public static void main(String[] args) {

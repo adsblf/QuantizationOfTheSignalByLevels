@@ -1,4 +1,4 @@
-package main.java.ru.berezhnov;
+package ru.berezhnov;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,9 +9,9 @@ import java.util.List;
 
 public class ProgramInterface {
     private final String[] functions = {
-            "sinx",
-            "Функция 2",
-            "Функция 3"
+            "sin(n*x)",
+            "a*cos(n*x)",
+            "Пока заглушка"
     };
 
     private final List<String> quantizationTypes = List.of(
@@ -21,9 +21,9 @@ public class ProgramInterface {
     );
 
     private final Map<String, List<String>> functionsWithLabels = Map.of(
-            "sinx", List.of("Введите x: ", "Введите y: "),
-            "Функция 2", List.of("Введите z: ", "Введите s: "),
-            "Функция 3", List.of("Введите x: ")
+            "sin(n*x)", List.of("Введите n: "),
+            "a*cos(n*x)", List.of("Введите a: ", "Введите n: "),
+            "Пока заглушка", List.of("Введите x: ")
     );
 
     /**
@@ -72,13 +72,13 @@ public class ProgramInterface {
             String selected = (String) comboBox.getSelectedItem();
 
             switch (selected) {
-                case "sinx":
-                    dummyFunction1();
+                case "sin(n*x)":
+                    FunctionPrinter.printFunction(selected, getFunctionParams(selected));
                     break;
-                case "Функция 2":
+                case "a*cos(n*x)":
                     dummyFunction2();
                     break;
-                case "Функция 3":
+                case "Пока заглушка":
                     dummyFunction3();
                     break;
             }
@@ -125,7 +125,6 @@ public class ProgramInterface {
             setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         }};
     }
-
 
     /**
      * Создает панель для ввода уровней квантования
@@ -196,16 +195,21 @@ public class ProgramInterface {
         return radioPanel;
     }
 
-    private void dummyFunction1() {
-        printFunctionData("sinx");
-    }
-
     private void dummyFunction2() {
-        printFunctionData("Функция 2");
+        printFunctionData("a*cos(n*x)");
     }
 
     private void dummyFunction3() {
-        printFunctionData("Функция 3");
+        printFunctionData("Пока заглушка");
+    }
+
+    private double[] getFunctionParams(String functionName) {
+        List<JTextField> fields = functionFields.get(functionName);
+        List<Double> values = new ArrayList<>();
+        fields.forEach(field -> {
+            values.add(Double.parseDouble(field.getText()));
+        });
+        return values.stream().mapToDouble(Double::doubleValue).toArray();
     }
 
     private void printFunctionData(String functionName) {
