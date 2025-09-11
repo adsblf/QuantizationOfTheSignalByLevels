@@ -180,14 +180,14 @@ public class FunctionPrinter {
     }
 
 
-    public static void printFunction(String functionName, double[] params) {
+    public static void printFunction(String functionName, double[] params, double xMin, double xMax) {
         Function<Double, Double> func = FunctionsBank.getFunctionByName(functionName, params);
-        FunctionPrinter.plotFunction(func, 0, 50, 0.01);
+        FunctionPrinter.plotFunction(func, xMin, xMax, 0.01);
     }
 
     public static void printQuantizedFunction(String functionName, double[] params, int quantizationLevels,
-                                              String quantizationType) {
+                                              String quantizationType, double xMin, double xMax) {
         Function<Double, Double> func = FunctionsBank.getFunctionByName(functionName, params);
-        FunctionPrinter.plotQuantizedFunction(func, 0, 50, 0.01, quantizationLevels, quantizationType);
+        FunctionPrinter.plotQuantizedFunction(func, xMin, xMax, 0.01, quantizationLevels, quantizationType);
     }
 }

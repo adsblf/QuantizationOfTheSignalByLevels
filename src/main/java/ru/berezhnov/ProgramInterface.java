@@ -35,6 +35,8 @@ public class ProgramInterface {
     private final Map<String, List<JTextField>> functionFields = new HashMap<>();
     private ButtonGroup quantizationGroup;
     private JTextField quantLevelsField;
+    private JTextField startRangeField;
+    private JTextField endRangeField;
 
     public void createWindow() {
         JFrame frame = createFrame("Построить функцию с квантованием сигнала");
@@ -61,8 +63,12 @@ public class ProgramInterface {
         // Нижняя панель с кнопкой и полем для ввода уровней квантования
         JPanel bottomPanel = new JPanel();
         bottomPanel.setLayout(new BoxLayout(bottomPanel, BoxLayout.Y_AXIS));
+
+        JPanel xRange = createPanelForEnteringXRange();
         JPanel quantPanel = createPanelForEnteringQuantizationLevels();
         JButton plotTheFunctionGraph = createButtonForBuildingFunction("Построить график функции");
+
+        bottomPanel.add(xRange);
         bottomPanel.add(quantPanel);
         bottomPanel.add(plotTheFunctionGraph);
         frame.add(bottomPanel, BorderLayout.SOUTH);
@@ -71,10 +77,8 @@ public class ProgramInterface {
         plotTheFunctionGraph.addActionListener(_ -> {
             String selected = (String) comboBox.getSelectedItem();
 
-            FunctionPrinter.printQuantizedFunction(selected, getFunctionParams(selected),
-                    getQuantizationLevel(), getQuantizationType());
-
-            FunctionPrinter.printFunction(selected, getFunctionParams(selected));
+            FunctionPrinter.printQuantizedFunction(selected, getFunctionParams(selected), getQuantizationLevel(),
+                    getQuantizationType(), getStartRange(), getEndRange());
         });
 
         frame.setVisible(true);
@@ -131,6 +135,21 @@ public class ProgramInterface {
     }
 
     /**
+     * Создает панель для ввода диапазона отрисовки функции по x
+     *
+     * @return JPanel
+     */
+    private JPanel createPanelForEnteringXRange() {
+        return new JPanel(new FlowLayout(FlowLayout.LEFT)) {{
+            add(new JLabel("Диапазон по x 'от'-'до' "));
+            startRangeField = new JTextField("0", 10);
+            endRangeField = new JTextField("50", 10);
+            add(startRangeField);
+            add(endRangeField);
+        }};
+    }
+
+    /**
      * Создает панель для ввода уровней квантования
      *
      * @return JPanel
@@ -138,7 +157,7 @@ public class ProgramInterface {
     private JPanel createPanelForEnteringQuantizationLevels() {
         return new JPanel(new FlowLayout(FlowLayout.LEFT)) {{
             add(new JLabel("Установить количество уровней квантования:"));
-            quantLevelsField = new JTextField("5", 10); // значение по умолчанию = 5
+            quantLevelsField = new JTextField("5", 10); //
             add(quantLevelsField);
         }};
     }
@@ -203,6 +222,14 @@ public class ProgramInterface {
 
     private String getQuantizationType() {
         return quantizationGroup.getSelection().getActionCommand();
+    }
+
+    private double getStartRange() {
+        return Double.parseDouble(startRangeField.getText());
+    }
+
+    private double getEndRange() {
+        return Double.parseDouble(endRangeField.getText());
     }
 
     private void printFunctionData(String functionName) {
