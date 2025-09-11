@@ -71,19 +71,8 @@ public class ProgramInterface {
         plotTheFunctionGraph.addActionListener(_ -> {
             String selected = (String) comboBox.getSelectedItem();
 
-            switch (selected) {
-                case "sin(n*x)":
-                    //FunctionPrinter.printFunction(selected, getFunctionParams(selected));
-                    FunctionPrinter.printQuantizedFunction(selected, getFunctionParams(selected),
-                            getQuantizationLevel(), getQuantizationType());
-                    break;
-                case "a*cos(n*x)":
-                    dummyFunction2();
-                    break;
-                case "Пока заглушка":
-                    dummyFunction3();
-                    break;
-            }
+            FunctionPrinter.printQuantizedFunction(selected, getFunctionParams(selected),
+                    getQuantizationLevel(), getQuantizationType());
         });
 
         frame.setVisible(true);
@@ -195,14 +184,6 @@ public class ProgramInterface {
         radioButtons.forEach(radioPanel::add);
 
         return radioPanel;
-    }
-
-    private void dummyFunction2() {
-        printFunctionData("a*cos(n*x)");
-    }
-
-    private void dummyFunction3() {
-        printFunctionData("Пока заглушка");
     }
 
     private double[] getFunctionParams(String functionName) {
