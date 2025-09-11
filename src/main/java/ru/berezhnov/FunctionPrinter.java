@@ -6,6 +6,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYDifferenceRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -36,7 +37,7 @@ public class FunctionPrinter {
         // Коллекция для графика
         XYSeriesCollection dataset = new XYSeriesCollection(series);
 
-        // Создаем график
+        // Создаем оси
         JFreeChart chart = ChartFactory.createXYLineChart(
                 "График функции",
                 "x",
@@ -93,8 +94,100 @@ public class FunctionPrinter {
         frame.setVisible(true);
     }
 
+    /**
+     * Построение сравнения функции и её квантованной версии
+     * @param func Функция
+     * @param xMin Минимум X
+     * @param xMax Максимум X
+     * @param step Шаг по X
+     * @param nLevels Уровни квантования
+     * @param quantType "верх", "низ", "середина"
+     */
+    public static void plotQuantizedFunction(Function<Double, Double> func,
+                                               double xMin, double xMax, double step,
+                                               int nLevels, String quantType) {
+        XYSeries originalSeries = new XYSeries("Оригинал");
+        XYSeries quantizedSeries = new XYSeries("Квантованная");
+
+        // Найти экстремумы + построить обычный график
+        double minY = Double.POSITIVE_INFINITY;
+        double maxY = Double.NEGATIVE_INFINITY;
+        for (double x = xMin; x <= xMax; x += step) {
+            double y = func.apply(x);
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+            originalSeries.add(x, y);
+        }
+
+        double qStep = (maxY - minY) / (nLevels);
+
+        // Построение квантованного графика
+        for (double x = xMin; x <= xMax; x += step) {
+            double y = func.apply(x);
+            double qY = switch (quantType.toLowerCase()) {
+                case "по верху" -> Math.ceil((y - minY) / qStep) * qStep + minY;
+                case "по низу" -> Math.floor((y - minY) / qStep) * qStep + minY;
+                default -> Math.round((y - minY) / qStep) * qStep + minY;
+            };
+            quantizedSeries.add(x, qY);
+        }
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(originalSeries);
+        dataset.addSeries(quantizedSeries);
+
+        // Настройка осей
+        JFreeChart chart = ChartFactory.createXYLineChart(
+                "Сравнение функции и квантованной версии",
+                "x",
+                "y",
+                dataset,
+                PlotOrientation.VERTICAL,
+                true,
+                true,
+                false
+        );
+
+        XYPlot plot = chart.getXYPlot();
+
+        // Настройка цветов линий
+        XYDifferenceRenderer renderer = new XYDifferenceRenderer(Color.RED, Color.BLUE, false);
+        renderer.setSeriesPaint(0, Color.RED);   // оригинал
+        renderer.setSeriesPaint(1, Color.BLUE);  // квантованная
+        plot.setRenderer(renderer);
+
+        // Настройка осей и сетки
+        NumberAxis xAxis = (NumberAxis) plot.getDomainAxis();
+        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
+        xAxis.setAutoRangeIncludesZero(true);
+        yAxis.setAutoRangeIncludesZero(true);
+        plot.setDomainZeroBaselineVisible(true);
+        plot.setRangeZeroBaselineVisible(true);
+        plot.setDomainGridlinesVisible(true);
+        plot.setRangeGridlinesVisible(true);
+
+        // Панель и окно
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new Dimension(800, 600));
+        chartPanel.setMouseWheelEnabled(true);
+
+        JFrame frame = new JFrame("Квантованное сравнение");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.getContentPane().add(chartPanel, BorderLayout.CENTER);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+
     public static void printFunction(String functionName, double[] params) {
-        Function<Double, Double> func1 = FunctionsBank.getFunctionByName(functionName, params);
-        FunctionPrinter.plotFunction(func1, 0, 50, 0.01);
+        Function<Double, Double> func = FunctionsBank.getFunctionByName(functionName, params);
+        FunctionPrinter.plotFunction(func, 0, 50, 0.01);
+    }
+
+    public static void printQuantizedFunction(String functionName, double[] params, int quantizationLevels,
+                                              String quantizationType) {
+        Function<Double, Double> func = FunctionsBank.getFunctionByName(functionName, params);
+        FunctionPrinter.plotQuantizedFunction(func, 0, 50, 0.01, quantizationLevels, quantizationType);
     }
 }

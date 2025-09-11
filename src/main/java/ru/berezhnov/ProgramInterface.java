@@ -73,7 +73,9 @@ public class ProgramInterface {
 
             switch (selected) {
                 case "sin(n*x)":
-                    FunctionPrinter.printFunction(selected, getFunctionParams(selected));
+                    //FunctionPrinter.printFunction(selected, getFunctionParams(selected));
+                    FunctionPrinter.printQuantizedFunction(selected, getFunctionParams(selected),
+                            getQuantizationLevel(), getQuantizationType());
                     break;
                 case "a*cos(n*x)":
                     dummyFunction2();
@@ -112,34 +114,6 @@ public class ProgramInterface {
     }
 
     /**
-     * Создает кнопку для построения графика функции
-     *
-     * @param functionName
-     * @return JButton
-     */
-    private JButton createButtonForBuildingFunction(String functionName) {
-        return new JButton(functionName) {{
-            setBackground(Color.PINK);
-            setFont(new Font("Arial", Font.BOLD, 12));
-            setAlignmentX(Component.CENTER_ALIGNMENT);
-            setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        }};
-    }
-
-    /**
-     * Создает панель для ввода уровней квантования
-     *
-     * @return JPanel
-     */
-    private JPanel createPanelForEnteringQuantizationLevels() {
-        return new JPanel(new FlowLayout(FlowLayout.LEFT)) {{
-            add(new JLabel("Установить количество уровней квантования:"));
-            quantLevelsField = new JTextField("5", 10); // значение по умолчанию = 5
-            add(quantLevelsField);
-        }};
-    }
-
-    /**
      * Создает панель для отдельной функции с необходимыми полями для ввода
      *
      * @param functionName
@@ -163,6 +137,34 @@ public class ProgramInterface {
 
         this.functionFields.put(functionName, fields);
         return panel;
+    }
+
+    /**
+     * Создает панель для ввода уровней квантования
+     *
+     * @return JPanel
+     */
+    private JPanel createPanelForEnteringQuantizationLevels() {
+        return new JPanel(new FlowLayout(FlowLayout.LEFT)) {{
+            add(new JLabel("Установить количество уровней квантования:"));
+            quantLevelsField = new JTextField("5", 10); // значение по умолчанию = 5
+            add(quantLevelsField);
+        }};
+    }
+
+    /**
+     * Создает кнопку для построения графика функции
+     *
+     * @param functionName
+     * @return JButton
+     */
+    private JButton createButtonForBuildingFunction(String functionName) {
+        return new JButton(functionName) {{
+            setBackground(Color.PINK);
+            setFont(new Font("Arial", Font.BOLD, 12));
+            setAlignmentX(Component.CENTER_ALIGNMENT);
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+        }};
     }
 
     /**
@@ -212,6 +214,14 @@ public class ProgramInterface {
         return values.stream().mapToDouble(Double::doubleValue).toArray();
     }
 
+    private int getQuantizationLevel() {
+        return Integer.parseInt(quantLevelsField.getText());
+    }
+
+    private String getQuantizationType() {
+        return quantizationGroup.getSelection().getActionCommand();
+    }
+
     private void printFunctionData(String functionName) {
         List<JTextField> fields = functionFields.get(functionName);
         System.out.println("Параметры " + functionName + ":");
@@ -225,5 +235,4 @@ public class ProgramInterface {
         String levels = quantLevelsField.getText();
         System.out.println("Количество уровней квантования: " + levels);
     }
-
 }
