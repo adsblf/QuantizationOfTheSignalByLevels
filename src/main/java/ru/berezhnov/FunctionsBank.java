@@ -7,7 +7,8 @@ public class FunctionsBank {
     private static Map<String, Function<double[], Function<Double, Double>>> functionBank = Map.of(
             "sin(n*x)", arr -> x -> Math.sin(arr[0] * x),
             "a*cos(n*x)", arr -> x -> arr[0] * Math.cos(arr[1] * x),
-            "Пока заглушка", arr -> x -> Math.sin(x) * Math.tanh(x) + Math.cos(3*x) * 0.5
+            "x^9 - 7x^7 + 15x^5 - 10x^3", arr -> x ->
+                    Math.pow(x, 9) - 7 * Math.pow(x, 7) + 15 * Math.pow(x, 5) - 10 * Math.pow(x, 3)
     );
 
     public static Function<Double, Double> getFunctionByName(String name, double... params) {

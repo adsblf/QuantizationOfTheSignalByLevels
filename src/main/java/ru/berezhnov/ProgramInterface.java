@@ -11,7 +11,7 @@ public class ProgramInterface {
     private final String[] functions = {
             "sin(n*x)",
             "a*cos(n*x)",
-            "Пока заглушка"
+            "x^9 - 7x^7 + 15x^5 - 10x^3"
     };
 
     private final List<String> quantizationTypes = List.of(
@@ -23,7 +23,7 @@ public class ProgramInterface {
     private final Map<String, List<String>> functionsWithLabels = Map.of(
             "sin(n*x)", List.of("Введите n: "),
             "a*cos(n*x)", List.of("Введите a: ", "Введите n: "),
-            "Пока заглушка", List.of("Введите x: ")
+            "x^9 - 7x^7 + 15x^5 - 10x^3", List.of()
     );
 
     /**
@@ -73,6 +73,8 @@ public class ProgramInterface {
 
             FunctionPrinter.printQuantizedFunction(selected, getFunctionParams(selected),
                     getQuantizationLevel(), getQuantizationType());
+
+            FunctionPrinter.printFunction(selected, getFunctionParams(selected));
         });
 
         frame.setVisible(true);
